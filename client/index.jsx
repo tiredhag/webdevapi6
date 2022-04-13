@@ -16,18 +16,63 @@ function LoginLinks() {
   );
 }
 
-function FrontPage() {
-  const [user, setUser] = useState();
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  return await res.json();
+}
+
+function useLoader(loadingFn) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+  const [data, setData] = useState();
   useEffect(async () => {
-    const res = await fetch("/api/login");
-    setUser(await res.json());
+    setLoading(true);
+    try {
+      setData(await loadingFn());
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+  return { loading, error, data };
+}
+
+function FrontPage() {
+  const { loading, error, data } = useLoader(
+    async () => await fetchJSON("api/login")
+  );
+
+  const user = data;
+
+  if (loading) {
+    return <div>Loading...Have patience jfc</div>;
+  }
+
+  if (error) {
+    return (
+      <div style={{ border: "1px solid red", background: "Pink" }}>
+        An error has occurred, its not my fault kekw. Status: {error.toString()}
+      </div>
+    );
+  }
 
   return (
     <div>
       <h1>Movie App</h1>
-      {user ? <div>{user.fullName}</div> : <LoginLinks />}
-      <LoginLinks />
+      {error && (
+        <div>
+          An error has occurred, its not my fault kekw. Status:{" "}
+          {error.toString()}
+        </div>
+      )}
+      {user ? (
+        <div>
+          {user.fullName} ({user.username}
+        </div>
+      ) : (
+        <LoginLinks />
+      )}
     </div>
   );
 }

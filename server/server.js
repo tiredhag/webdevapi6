@@ -23,5 +23,7 @@ app.use((req, res, next) => {
 });
 
 const server = app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server started on http://localhost:${server.address().port}`);
+  console.log(
+    `Stupid server started on http://localhost:${server.address().port}`
+  );
 });
